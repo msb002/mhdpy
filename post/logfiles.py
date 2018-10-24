@@ -17,8 +17,7 @@ def cut_log_file(fileinpaths, times, fileoutpaths_list, **kwargs):
     
     This function assumes that the channels are waveforms.
     """
-    for i in range(len(fileinpaths)):
-        fileinpath = fileinpaths[i]
+    for i, fileinpath in enumerate(fileinpaths):
         fileoutpaths = fileoutpaths_list[i]
         tdmsfile = TF(fileinpath)
         for j in range(len(times)):
@@ -48,8 +47,7 @@ def cut_log_file(fileinpaths, times, fileoutpaths_list, **kwargs):
 
 def cut_powermeter(fileinpaths, times, fileoutpaths_list, **kwargs):
     """Cut up a power meter tdms file based on input times."""
-    for i in range(len(fileinpaths)):
-        fileinpath = fileinpaths[i]
+    for i, fileinpath in enumerate(fileinpaths):
         fileoutpaths = fileoutpaths_list[i]
         tdmsfile = TF(fileinpath)
         for j in range(len(times)):
