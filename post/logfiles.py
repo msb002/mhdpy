@@ -17,13 +17,14 @@ def cut_log_file(fileinpaths, times, fileoutpaths_list, **kwargs):
     
     This function assumes that the channels are waveforms.
     """
-    for i in range(len(fileinpaths)):
-        fileinpath = fileinpaths[i]
+<<<<<<< HEAD
+    for i, fileinpath in enumerate(fileinpaths):
+=======
+    for i,fileinpath in enumerate(fileinpaths):
+>>>>>>> aa5d9b9cf2b17592c815ee07134dd7752593107f
         fileoutpaths = fileoutpaths_list[i]
         tdmsfile = TF(fileinpath)
-        for j in range(len(times)):
-            time1 = times[j][0]
-            time2 = times[j][1]
+        for j,time in enumerate(times):
             fileoutpath = fileoutpaths[j]
             
             direc = os.path.split(fileoutpath)[0]
@@ -37,7 +38,7 @@ def cut_log_file(fileinpaths, times, fileoutpaths_list, **kwargs):
                 with TdmsWriter(fileoutpath,mode='w') as tdms_writer:
                     for group in tdmsfile.groups():
                         for channel in tdmsfile.group_channels(group):
-                            channel_object = _cut_channel(channel,time1,time2, timedata = None)
+                            channel_object = _cut_channel(channel,time[0],time[1], timedata = None)
                             tdms_writer.write_segment([
                                 root_object,
                                 channel_object])
@@ -48,13 +49,14 @@ def cut_log_file(fileinpaths, times, fileoutpaths_list, **kwargs):
 
 def cut_powermeter(fileinpaths, times, fileoutpaths_list, **kwargs):
     """Cut up a power meter tdms file based on input times."""
-    for i in range(len(fileinpaths)):
-        fileinpath = fileinpaths[i]
+<<<<<<< HEAD
+    for i, fileinpath in enumerate(fileinpaths):
+=======
+    for i,fileinpath in enumerate(fileinpaths):
+>>>>>>> aa5d9b9cf2b17592c815ee07134dd7752593107f
         fileoutpaths = fileoutpaths_list[i]
         tdmsfile = TF(fileinpath)
-        for j in range(len(times)):
-            time1 = times[j][0]
-            time2 = times[j][1]
+        for j, time in enumerate(times):
             fileoutpath = fileoutpaths[j]
 
             direc = os.path.split(fileoutpath)[0]
@@ -69,10 +71,10 @@ def cut_powermeter(fileinpaths, times, fileoutpaths_list, **kwargs):
                         timedata = tdmsfile.channel_data(group,'Time_LV')                     
                         for channel in tdmsfile.group_channels(group):
                             if type(channel.data_type.size) == type(None): break #skips over non numeric channels
-                            channel_object = _cut_channel(channel,time1,time2, timedata = timedata)
+                            channel_object = _cut_channel(channel,time[0],time[1], timedata = timedata)
                             tdms_writer.write_segment([root_object,channel_object])
                         timechannel = tdmsfile.object(group,'Time_LV')
-                        timechannel_cut = _cut_datetime_channel(timechannel,time1,time2)
+                        timechannel_cut = _cut_datetime_channel(timechannel,time[0],time[1])
                         tdms_writer.write_segment([root_object,timechannel_cut])
             except ValueError as error:
                 print(error)
