@@ -134,9 +134,8 @@ def geteventinfo(jsonfile, cuttimes = None ,eventstr = None):
 
 def event_before(jsonfile, time_cut):
     """returns the event before time_cut"""
-    time1 = datetime.datetime.utcfromtimestamp(0)
-    time1 = time1.replace(tzinfo=pytz.utc)
-    tci = geteventinfo(jsonfile, [time1,time_cut],'TestCaseInfoChange')
+
+    tci = geteventinfo(jsonfile, None,'TestCaseInfoChange')
     tci_cut = [] 
     for time, event in tci.items():
         if(time<=time_cut): 
