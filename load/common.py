@@ -22,7 +22,8 @@ def create_tcdict(filepaths, loadfn, prefixes = None ):
 
         
         df =  loadfn(filepath)
-        dfs[testcase] =df
+        if df is not None:
+            dfs[testcase] =df
 
     return dfs
 
@@ -65,6 +66,12 @@ def tcdict2mi(tcdict,regexs,drop = True):
     return df
 
 def tdms2df(filepath):
+    filename = os.path.split(filepath)[1]
+    ext = os.path.splitext(filename)[1]
+    if ext != ".tdms":
+        print("File was not a tdms file")
+        return None
+
     tdmsfile = nptdms.TdmsFile(filepath)
     df = tdmsfile.as_dataframe()
 
