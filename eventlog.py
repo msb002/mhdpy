@@ -9,6 +9,7 @@ import time
 import pathlib
 import datetime
 import pytz
+import numpy as np
 
 def writeevent(Eventlogfile, event):
     """
@@ -118,8 +119,10 @@ def geteventinfo(jsonfile, cuttimes = None ,eventstr = None):
     tci = {} #Should be using ordered dict instead to ensure time order?
     for event in jsonfile:
         if (event['event']['type'] == eventstr) or (eventstr == None):
-            time = datetime.datetime.utcfromtimestamp(event['dt'])
-            time = time.replace(tzinfo=pytz.utc)
+            ts = event['dt']
+            time = np.datetime64(int(ts),'s')
+            # time = datetime.datetime.utcfromtimestamp(event['dt'])
+            # time = time.replace(tzinfo=pytz.utc)
             tci[time] = event['event']['event info']
 
     #pull only those events before time1 if cut is true
@@ -140,7 +143,10 @@ def event_before(jsonfile, time_cut):
     for time, event in tci.items():
         if(time<=time_cut): 
             tci_cut.append(event)
-    return tci_cut[-1]
+    if(len(tci_cut) == 0):
+        return None
+    else:
+        return tci_cut[-1]
 
 def gen_fileinfo(tci_event):
     """Takes in a test case and return a destination folder and filename"""

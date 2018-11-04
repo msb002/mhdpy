@@ -38,8 +38,8 @@ def _cut_channel(channel,time1,time2, timedata = None):
     if(timedata == None): #if no timedata is passed, assume channel is a waveform
         timedata = channel.time_track(absolute_time = True)
         
-        time1 = np.datetime64(time1)
-        time2 = np.datetime64(time2)
+        # time1 = np.datetime64(time1)
+        # time2 = np.datetime64(time2)
         idx1, idx2 =  _get_indextime(timedata, time1,time2, dtype = 'np64')
         waveform = True
     else:
@@ -75,7 +75,7 @@ def _cut_datetime_channel(channel,time1,time2):
 
 
 
-def _get_indextime(timedata, time1,time2,dtype = 'datetime'):
+def _get_indextime(timedata, time1,time2,dtype = 'np64'):
     """Get the nearest indicies of two times in a time array, maintaining time order."""
     if(time2 > time1):
         idx1 = timefuncs.nearest_timeind(timedata,time1,dtype)
