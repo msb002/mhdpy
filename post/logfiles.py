@@ -10,6 +10,8 @@ from nptdms import TdmsWriter, RootObject
 import os
 import mhdpy.timefuncs as timefuncs
 import numpy as np
+import tzlocal
+import pytz
 
 
 # Mid level post processing (processes a specific type of file)
@@ -52,13 +54,17 @@ def cut_log_file(fileinpaths, times, fileoutpaths_list, **kwargs):
 
 def cut_powermeter(fileinpaths, times, fileoutpaths_list, **kwargs):
     """Cut up a power meter tdms file based on input times."""
+
+    localtz = tzlocal.get_localzone()
     for i in range(len(fileinpaths)):
         fileinpath = fileinpaths[i]
         fileoutpaths = fileoutpaths_list[i]
         tdmsfile = TF(fileinpath)
         for j in range(len(times)):
-            time1 = times[j][0]
-            time2 = times[j][1]
+            time1 = times[j][0].astype('O')
+            time1 = time1.replace(tzinfo = pytz.utc) #convert to datetime
+            time2 = times[j][1].astype('O')
+            time2 = time2.replace(tzinfo = pytz.utc)
             fileoutpath = fileoutpaths[j]
 
             direc = os.path.split(fileoutpath)[0]

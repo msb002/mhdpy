@@ -29,14 +29,16 @@ def labview_to_unix(timestamps):
     """converts a labview timestamp into a unix timestamp"""
     return list(map(lambda x: x -2082844800 ,timestamps))
 
-def nearest_timeind(timearray, pivot, dtype = 'np64'):
+def nearest_timeind(timearray, pivot):
     """
     Returns the nearest index in a time array corresponding to the pivot time.
     
     The method varies depending on the datatype. datetime.datetime objects require lambda functions to convert an array to timestamps. numpy datetimes can just undergo simple element by element subtraction, which is much quicker. 
     """
-    if(dtype == 'datetime'):
+    dtype = type(pivot)
+
+    if(dtype == datetime.datetime):
         seconds = np.array(list(map(lambda x: abs(x - pivot).total_seconds(),timearray))) 
-    else:
+    elif(dtype == np.datetime64):
         seconds = abs(timearray - pivot)
     return seconds.argmin()

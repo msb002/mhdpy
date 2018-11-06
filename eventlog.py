@@ -119,7 +119,7 @@ def geteventinfo(jsonfile, cuttimes = None ,eventstr = None):
     tci = {} #Should be using ordered dict instead to ensure time order?
     for event in jsonfile:
         if (event['event']['type'] == eventstr) or (eventstr == None):
-            time = np.datetime64(int(event['dt']),'s')
+            time = np.datetime64(int(event['dt']*1e6),'us')
             tci[time] = event['event']['event info']
 
     #pull only those events before time1 if cut is true
