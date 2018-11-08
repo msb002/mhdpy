@@ -8,6 +8,8 @@ import json
 import time
 import pathlib
 import datetime
+import pytz
+import numpy as np
 
 def writeevent(Eventlogfile, event):
     """
@@ -110,3 +112,41 @@ class Eventlog():
 
         writeevent(self.Eventlogfile,event)
 
+
+
+def geteventinfo(jsonfile, cuttimes = None ,eventstr = None):
+    """pull the testcase info from the json file, only those after time1 if cut is true"""
+    tci = {} #Should be using ordered dict instead to ensure time order?
+    for event in jsonfile:
+        if (event['event']['type'] == eventstr) or (eventstr == None):
+            time = np.datetime64(int(event['dt']*1e6),'us')
+            tci[time] = event['event']['event info']
+
+    #pull only those events before time1 if cut is true
+    if(cuttimes != None):
+        tci_cut = {}
+        for time, event in tci.items():
+            if((time>cuttimes[0]) and (time<cuttimes[1])): 
+                tci_cut[time] = event
+        tci = tci_cut
+
+    return tci
+
+def event_before(jsonfile, time_cut):
+    """returns the event before time_cut"""
+
+    tci = geteventinfo(jsonfile, None,'TestCaseInfoChange')
+    tci_cut = [] 
+    for time, event in tci.items():
+        if(time<=time_cut): 
+            tci_cut.append(event)
+    if(len(tci_cut) == 0):
+        return None
+    else:
+        return tci_cut[-1]
+
+def gen_fileinfo(tci_event):
+    """Takes in a test case and return a destination folder and filename"""
+    folder = tci_event['project'] + '\\'+ tci_event['subfolder']
+    filename = '_' + tci_event['filename'] + '_'+ tci_event['measurementnumber']
+    return folder, filename

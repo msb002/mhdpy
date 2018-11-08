@@ -37,13 +37,8 @@ def _cut_channel(channel,time1,time2, timedata = None):
     waveform = False
     if(timedata == None): #if no timedata is passed, assume channel is a waveform
         timedata = channel.time_track(absolute_time = True)
-        
-        time1 = np.datetime64(time1)
-        time2 = np.datetime64(time2)
-        idx1, idx2 =  _get_indextime(timedata, time1,time2, dtype = 'np64')
         waveform = True
-    else:
-        idx1, idx2 =  _get_indextime(timedata, time1,time2)
+    idx1, idx2 =  _get_indextime(timedata, time1,time2)
 
     if(idx1 == idx2): #times are not within file
         raise ValueError('times not in channel') #.tdms_file.object().properties['name']
@@ -75,14 +70,14 @@ def _cut_datetime_channel(channel,time1,time2):
 
 
 
-def _get_indextime(timedata, time1,time2,dtype = 'datetime'):
+def _get_indextime(timedata, time1,time2):
     """Get the nearest indicies of two times in a time array, maintaining time order."""
     if(time2 > time1):
-        idx1 = timefuncs.nearest_timeind(timedata,time1,dtype)
-        idx2 = timefuncs.nearest_timeind(timedata,time2,dtype)
+        idx1 = timefuncs.nearest_timeind(timedata,time1)
+        idx2 = timefuncs.nearest_timeind(timedata,time2)
     else:
-        idx2 = timefuncs.nearest_timeind(timedata,time1,dtype)
-        idx1 = timefuncs.nearest_timeind(timedata,time2,dtype)
+        idx2 = timefuncs.nearest_timeind(timedata,time1)
+        idx1 = timefuncs.nearest_timeind(timedata,time2)
 
     return idx1,idx2    
 
