@@ -8,6 +8,7 @@ import numpy as np
 from nptdms import RootObject, ChannelObject
 import datetime
 import mhdpy.timefuncs as timefuncs
+import scipy.stats as stats
 
 #Low level post processing (Functions inside a file)
 
@@ -51,7 +52,11 @@ def _cut_channel(channel,time1,time2, timedata = None):
         offset = datetime.timedelta(milliseconds = props['wf_increment']*1000*idx1)
         props['wf_start_time'] = start + offset
 
-    return ChannelObject(channel.group, channel.channel, channel.data[idx1:idx2], properties=props)
+
+    data = channel.data[idx1:idx2]
+    props = {**props, **_calc_stats(data)}
+
+    return ChannelObject(channel.group, channel.channel, data , properties=props)
     
 def _cut_datetime_channel(channel,time1,time2):
     """
@@ -90,3 +95,12 @@ def _write_dataframe(tdms_writer, dataframe, name):
         channel_object = ChannelObject(name, name + "_" + str(i) , column)
         tdms_writer.write_segment([root_object,channel_object])
         i=i+1
+
+
+def _calc_stats(channel_data):
+    statistics = {}
+    statistics['stats_mean'] = np.mean(channel_data)
+    statistics['stats_median'] = np.median(channel_data)
+    statistics['stats_skew'] = stats.skew(channel_data)
+    statistics['stats_stddev'] = np.std(channel_data)
+    return statistics 
