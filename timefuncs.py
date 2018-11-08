@@ -36,7 +36,6 @@ def nearest_timeind(timearray, pivot):
     The method varies depending on the datatype. datetime.datetime objects require lambda functions to convert an array to timestamps. numpy datetimes can just undergo simple element by element subtraction, which is much quicker. 
     """
     dtype = type(pivot)
-
     if(dtype == datetime.datetime):
         seconds = np.array(list(map(lambda x: abs(x - pivot).total_seconds(),timearray))) 
     elif(dtype == np.datetime64):
