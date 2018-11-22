@@ -91,3 +91,41 @@ def cut_powermeter(fileinpaths, times, fileoutpaths_list, **kwargs):
 
 
 
+def cut_log_file_gen(fileinpaths, times, fileoutpaths_list, **kwargs):
+    """
+    Cuts up a log file based on the supplied times.
+    
+    This function assumes that the channels are waveforms.
+    """
+
+    timearray = kwargs['timearray']
+
+    for i, fileinpath in enumerate(fileinpaths):
+
+        fileoutpaths = fileoutpaths_list[i]
+        tdmsfile = TF(fileinpath)
+        for j in range(len(times)):
+            time1 = times[j][0]
+            time2 = times[j][1]
+
+            fileoutpath = fileoutpaths[j]
+            
+            direc = os.path.split(fileoutpath)[0]
+            if not os.path.exists(direc):
+                os.makedirs(direc)
+
+            root_object = RootObject(properties={ #TODO root properties
+            })
+
+            try:
+                with TdmsWriter(fileoutpath,mode='w') as tdms_writer:
+                    for group in tdmsfile.groups():
+                        for channel in tdmsfile.group_channels(group):
+                            channel_object = _cut_channel(channel,time1,time2, timedata = None)
+                            tdms_writer.write_segment([
+                                root_object,
+                                channel_object])
+            except ValueError as error:
+                print(error)
+                print('removing the file at: \n', fileoutpath)
+                os.remove(fileoutpath)

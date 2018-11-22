@@ -29,6 +29,7 @@ def _join_tdms(fileinpaths, **kwargs):
     pass
 
 
+
 def _cut_channel(channel,time1,time2, timedata = None):
     """
     Cut an individual channel based on input times.
