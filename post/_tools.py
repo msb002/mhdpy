@@ -9,6 +9,7 @@ from nptdms import RootObject, ChannelObject
 import datetime
 import mhdpy.timefuncs as timefuncs
 import scipy.stats as stats
+import nptdms
 
 #Low level post processing (Functions inside a file)
 
@@ -29,17 +30,13 @@ def _join_tdms(fileinpaths, **kwargs):
     pass
 
 
-def _cut_channel(channel,time1,time2, timedata = None):
+
+def _cut_channel(channel,idx1,idx2, waveform):
     """
     Cut an individual channel based on input times.
     
     If no time data is passed the channel is assumed to be a waveform and time_track is used to get a numpy array of the times
     """
-    waveform = False
-    if(timedata == None): #if no timedata is passed, assume channel is a waveform
-        timedata = channel.time_track(absolute_time = True)
-        waveform = True
-    idx1, idx2 =  _get_indextime(timedata, time1,time2)
 
     if(idx1 == idx2): #times are not within file
         raise ValueError('times not in channel') #.tdms_file.object().properties['name']
@@ -52,10 +49,12 @@ def _cut_channel(channel,time1,time2, timedata = None):
         offset = datetime.timedelta(milliseconds = props['wf_increment']*1000*idx1)
         props['wf_start_time'] = start + offset
 
-
     data = channel.data[idx1:idx2]
-    props = {**props, **_calc_stats(data)}
+    
+    if channel.data_type == nptdms.types.DoubleFloat: 
+        props = {**props, **_calc_stats(data)}
 
+    
     return ChannelObject(channel.group, channel.channel, data , properties=props)
     
 def _cut_datetime_channel(channel,time1,time2):
@@ -65,6 +64,9 @@ def _cut_datetime_channel(channel,time1,time2):
     used for powermeter for now, which logs times from labview (Time_LV), which is an array of datetime objects. In the future this, cutting of np64 time arrays, waveforms, and numeric channels should all be combined. 
     """
     timedata = channel.data
+
+    timedata = np.array(list(map(lambda x: np.datetime64(x),timedata)))   
+    timedata = timedata.astype('M8[us]')
     idx1, idx2 =  _get_indextime(timedata, time1,time2)
 
     if(idx1 == idx2): #times are not within file
