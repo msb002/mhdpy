@@ -4,9 +4,10 @@ Post Processing routines that parse log files.
 """
 
 from __future__ import unicode_literals
-from ._tools import _cut_channel, _cut_datetime_channel
+from ._tools import _cut_channel, _cut_datetime_channel, _get_indextime
 from nptdms import TdmsFile as TF
 from nptdms import TdmsWriter, RootObject
+import nptdms
 import os
 import mhdpy.timefuncs as timefuncs
 import numpy as np
@@ -39,93 +40,52 @@ def cut_log_file(fileinpaths, times, fileoutpaths_list, **kwargs):
             root_object = RootObject(properties={ #TODO root properties
             })
 
+            timegroupwritten = False
+
             try:
                 with TdmsWriter(fileoutpath,mode='w') as tdms_writer:
                     for group in tdmsfile.groups():
+                        if 'TimeChannelName' in kwargs:
+                            if 'TimeGroupName' in kwargs:
+                                timegroup = kwargs['TimeGroupName']
+                            else:
+                                timegroup = group
+                                timegroupwritten = False
+                            timechannel = tdmsfile.object(timegroup,kwargs['TimeChannelName'])
+                            timedata = timechannel.data    
+                            timedata = np.array(list(map(lambda x: np.datetime64(x),timedata)))   
+                            timedata = timedata.astype('M8[us]')
+
+                            if timegroupwritten == False:
+                                timechannel_cut = _cut_datetime_channel(timechannel,time1,time2)
+                                tdms_writer.write_segment([root_object,timechannel_cut])
+                                timegroupwritten = True
+
+                            waveform = False
+                        else:
+                            waveform = True
+
                         for channel in tdmsfile.group_channels(group):
-                            channel_object = _cut_channel(channel,time1,time2, timedata = None)
-                            tdms_writer.write_segment([
-                                root_object,
-                                channel_object])
+                            # if type(channel.data_type.size) == type(None): break #skips over non numeric channels
+                            if channel.data_type == nptdms.types.DoubleFloat:
+                                if waveform:
+                                    timedata = channel.time_track(absolute_time = True)
+                                idx1, idx2 =  _get_indextime(timedata, time1,time2)
+                                channel_object = _cut_channel(channel,idx1,idx2,waveform)
+                                tdms_writer.write_segment([root_object,channel_object])
             except ValueError as error:
                 print(error)
                 print('removing the file at: \n', fileoutpath)
                 os.remove(fileoutpath)
 
 def cut_powermeter(fileinpaths, times, fileoutpaths_list, **kwargs):
-    """Cut up a power meter tdms file based on input times."""
+    kwargs = {**kwargs, 'TimeChannelName' : "Time_LV"}
+    cut_log_file(fileinpaths, times, fileoutpaths_list, **kwargs)
 
-    localtz = tzlocal.get_localzone()
-    for i in range(len(fileinpaths)):
-        fileinpath = fileinpaths[i]
-        fileoutpaths = fileoutpaths_list[i]
-        tdmsfile = TF(fileinpath)
-        for j in range(len(times)):
-            time1 = times[j][0].astype('O')
-            time1 = time1.replace(tzinfo = pytz.utc) #convert to datetime
-            time2 = times[j][1].astype('O')
-            time2 = time2.replace(tzinfo = pytz.utc)
-            fileoutpath = fileoutpaths[j]
+def cut_alicat(fileinpaths, times, fileoutpaths_list, **kwargs):
+    kwargs = {**kwargs, 'TimeChannelName' : "Time"}
+    cut_log_file(fileinpaths, times, fileoutpaths_list, **kwargs)
 
-            direc = os.path.split(fileoutpath)[0]
-            if not os.path.exists(direc):
-                os.makedirs(direc)
-
-            root_object = RootObject(properties={ #TODO root properties
-            })
-            try:
-                with TdmsWriter(fileoutpath,mode='w') as tdms_writer:
-                    for group in tdmsfile.groups():
-                        timedata = tdmsfile.channel_data(group,'Time_LV')                     
-                        for channel in tdmsfile.group_channels(group):
-                            if type(channel.data_type.size) == type(None): break #skips over non numeric channels
-                            channel_object = _cut_channel(channel,time1,time2, timedata = timedata)
-                            tdms_writer.write_segment([root_object,channel_object])
-                        timechannel = tdmsfile.object(group,'Time_LV')
-                        timechannel_cut = _cut_datetime_channel(timechannel,time1,time2)
-                        tdms_writer.write_segment([root_object,timechannel_cut])
-            except ValueError as error:
-                print(error)
-                print('removing the file at: \n', fileoutpath)
-                os.remove(fileoutpath)
-
-
-
-def cut_log_file_gen(fileinpaths, times, fileoutpaths_list, **kwargs):
-    """
-    Cuts up a log file based on the supplied times.
-    
-    This function assumes that the channels are waveforms.
-    """
-
-    timearray = kwargs['timearray']
-
-    for i, fileinpath in enumerate(fileinpaths):
-
-        fileoutpaths = fileoutpaths_list[i]
-        tdmsfile = TF(fileinpath)
-        for j in range(len(times)):
-            time1 = times[j][0]
-            time2 = times[j][1]
-
-            fileoutpath = fileoutpaths[j]
-            
-            direc = os.path.split(fileoutpath)[0]
-            if not os.path.exists(direc):
-                os.makedirs(direc)
-
-            root_object = RootObject(properties={ #TODO root properties
-            })
-
-            try:
-                with TdmsWriter(fileoutpath,mode='w') as tdms_writer:
-                    for group in tdmsfile.groups():
-                        for channel in tdmsfile.group_channels(group):
-                            channel_object = _cut_channel(channel,time1,time2, timedata = None)
-                            tdms_writer.write_segment([
-                                root_object,
-                                channel_object])
-            except ValueError as error:
-                print(error)
-                print('removing the file at: \n', fileoutpath)
-                os.remove(fileoutpath)
+def cut_motor(fileinpaths, times, fileoutpaths_list, **kwargs):
+    kwargs = {**kwargs, 'TimeChannelName' : "Time", 'TimeGroupName' : 'Global'}
+    cut_log_file(fileinpaths, times, fileoutpaths_list, **kwargs)
