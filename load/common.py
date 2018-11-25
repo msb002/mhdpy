@@ -53,8 +53,6 @@ def tcdict2mi(tcdict,regexs,drop = True):
             mi_array.append(i_array)
         else:
             del tcdict_trim[tckey]
-    
-    print(mi_array)
 
     mi_array = np.array(mi_array).T.tolist()
     mi = pd.MultiIndex.from_arrays(mi_array , names = regexs.keys())
