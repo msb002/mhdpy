@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 
-def plotgrid(dfs, sel_col = None, squash = False, sharey = True, sharex = True, xlabel = "", ylabel = ""):
+def plotgrid(dfs, sel_col = None, squash = False, sharey = True, sharex = True, xlabel = "", ylabel = "", xscale = 1 , yscale = 1):
     #use colsel to select the column in the final dataframe to be plotted, if blank then plot all or series
     dfs = dfs.swaplevel(0,1).sort_index()
 
@@ -18,7 +18,7 @@ def plotgrid(dfs, sel_col = None, squash = False, sharey = True, sharex = True, 
     
     if(squash):
         nrow = 1
-    fig, axes = plt.subplots(nrow,ncol,sharey = sharey, sharex=sharex, figsize = (2*ncol,2*nrow))
+    fig, axes = plt.subplots(nrow,ncol,sharey = sharey, sharex=sharex, figsize = (2*xscale*ncol,2*yscale*nrow))
 
     for i, col in enumerate(levels[0]):
         for j, row in enumerate(levels[1]):
@@ -37,7 +37,7 @@ def plotgrid(dfs, sel_col = None, squash = False, sharey = True, sharex = True, 
                     trace = dfs_i.loc[row]#[0]
                     if(sel_col != None):
                         trace = trace[trace.columns[sel_col]]
-                    ax.plot(trace, label = (col,row))
+                    ax.plot(trace, label = (col,row) , marker = 'o')
 
                 if(j==0):
                     ax.set_title(colname + ": " + str(col))

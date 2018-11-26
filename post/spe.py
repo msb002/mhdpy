@@ -114,12 +114,13 @@ def _lasertiming(filepaths):
 def _get_gatedelays(spe_file):
     """pull a gate delay array from a sequential SPE file. """
     num_frames = spe_file.nframes
-    
     Gatinginfo = spe_file.footer.SpeFormat.DataHistories.DataHistory.Origin.Experiment.Devices.Cameras.Camera.Gating.Sequential
     
     start_gatedelay = int(Gatinginfo.StartingGate.Pulse['delay'])
-    end_gatedelay = int(Gatinginfo.EndingGate.Pulse['delay'])
+    width_gatedelay = int(Gatinginfo.StartingGate.Pulse['width'])
+    # end_gatedelay = int(Gatinginfo.EndingGate.Pulse['delay'])
     
+    end_gatedelay = start_gatedelay + width_gatedelay*(num_frames-1)
     gatedelays = np.linspace(start_gatedelay, end_gatedelay, num_frames)
 
     return gatedelays

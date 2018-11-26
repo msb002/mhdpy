@@ -6,7 +6,7 @@ import re
 import pandas as pd
 import numpy as np
 
-def create_tcdict(filepaths, loadfn, prefixes = None ):
+def create_tcdict(filepaths, loadfn, prefixes = None , kwargs = {}):
     """takes in a list of files and a load function, and creates a dict of a df for each file. If a prefix is passed, that is removed from the filename (typically the instrument name so only the test case is left as the dict key)"""
 
     dfs = {}
@@ -21,7 +21,7 @@ def create_tcdict(filepaths, loadfn, prefixes = None ):
                     testcase = _remove_prefix(testcase,prefix)
 
         
-        df =  loadfn(filepath)
+        df =  loadfn(filepath, **kwargs)
         if df is not None:
             dfs[testcase] =df
 
@@ -47,12 +47,13 @@ def tcdict2mi(tcdict,regexs,drop = True):
             regex = regexs[rekey]
             m  = re.search(regex,tckey)
             if (m):
-                i_array.append(float(m.groups(1)[0]))
+                i_array.append(m.groups(1)[0])
+                # i_array.append(float(m.groups(1)[0]))
         if(len(i_array) == len(regexs)):
             mi_array.append(i_array)
         else:
             del tcdict_trim[tckey]
-                
+
     mi_array = np.array(mi_array).T.tolist()
     mi = pd.MultiIndex.from_arrays(mi_array , names = regexs.keys())
 
@@ -102,9 +103,9 @@ def _remove_prefix(s, prefix):
     return s[len(prefix):] if s.startswith(prefix) else s
 
 
-def last_measnum(df):
+def last_measnum(df, level = 3):
     """Iterates through the multiindex and only uses the last measurement number"""
-    trim_index = df.index.droplevel(3).drop_duplicates()
+    trim_index = df.index.droplevel(level   ).drop_duplicates()
 
     trim_index
     trim_arr = []
