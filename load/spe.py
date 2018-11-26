@@ -22,10 +22,8 @@ def spe2df_spect(spefilepath, gatingtype = 'rep'):
     
     datamatrix = np.zeros((len(wavelength),len(gatedelays)))
     
-    i = 0
-    for frame in frames:
+    for i, frame in enumerate(frames):
         datamatrix[:,i] = frame[0]
-        i = i+1
     if gatingtype == 'rep':
         spectraldf = pd.DataFrame(datamatrix, index = wavelength)
     elif gatingtype == 'seq':
