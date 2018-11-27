@@ -2,12 +2,10 @@
 """
 Various functions for conversions of time objects
 """
-import win32com.client  # Python ActiveX Client
-LabVIEW = win32com.client.Dispatch("Labview.Application")
 
 repopath = 'C:\\Users\\aspit\\Git\\MHDLab\\'
 
-def gen_filepath(devicename, extension = '.tdms',DAQmx = False, Logfile = False):
+def gen_filepath(LabVIEW, devicename, extension = '.tdms',DAQmx = False, Logfile = False):
     VI = LabVIEW.getvireference(repopath + 'Common Subvis\\GenerateFilePaths.vi')  # Path to LabVIEW VI
     VI._FlagAsMethod("Run")
 
@@ -19,7 +17,8 @@ def gen_filepath(devicename, extension = '.tdms',DAQmx = False, Logfile = False)
     filepath = VI.getcontrolvalue('Path')  # Get return value
     return filepath  
 
-def get_fileinfo():
+def get_fileinfo(LabVIEW):
     VI = LabVIEW.getvireference(repopath + 'Global Variables.vi')  # Path to LabVIEW VI
     fileinfo = VI.getcontrolvalue('Global File Information')  # Get return value
     return fileinfo  
+
