@@ -107,13 +107,8 @@ def _df_to_csvs(df, times, fileoutpaths):
         if not os.path.exists(direc):
             os.makedirs(direc)
 
-        # try:
         df = df[time1:time2]
-        df.to_csv(fileoutpath)
-        # except ValueError as error:
-        #     print(error)
-        #     print('removing the file at: \n', fileoutpath)
-        #     os.remove(fileoutpath)        
+        df.to_csv(fileoutpath)       
 
 def cut_jp(fileinpaths, times, fileoutpaths_list, **kwargs):
     localtz = tzlocal.get_localzone()
