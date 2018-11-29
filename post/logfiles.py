@@ -13,6 +13,7 @@ import mhdpy.timefuncs as timefuncs
 import numpy as np
 import tzlocal
 import pytz
+import pandas as pd
 
 
 # Mid level post processing (processes a specific type of file)
@@ -89,3 +90,43 @@ def cut_alicat(fileinpaths, times, fileoutpaths_list, **kwargs):
 def cut_motor(fileinpaths, times, fileoutpaths_list, **kwargs):
     kwargs = {**kwargs, 'TimeChannelName' : "Time", 'TimeGroupName' : 'Global'}
     cut_log_file(fileinpaths, times, fileoutpaths_list, **kwargs)
+
+
+def _df_to_csvs(df, times, fileoutpaths):
+    """
+    Cuts up a dataframe with a date time index and saves to a csv
+    """
+    
+    for j in range(len(times)):
+        time1 = times[j][0]
+        time2 = times[j][1]
+
+        fileoutpath = fileoutpaths[j]
+        fileoutpath = fileoutpath.replace(".tdms", ".csv")   
+        direc = os.path.split(fileoutpath)[0]
+        if not os.path.exists(direc):
+            os.makedirs(direc)
+
+        # try:
+        df = df[time1:time2]
+        df.to_csv(fileoutpath)
+        # except ValueError as error:
+        #     print(error)
+        #     print('removing the file at: \n', fileoutpath)
+        #     os.remove(fileoutpath)        
+
+def cut_jp(fileinpaths, times, fileoutpaths_list, **kwargs):
+    localtz = tzlocal.get_localzone()
+    for i, fileinpath in enumerate(fileinpaths):
+        fileoutpaths = fileoutpaths_list[i]
+        print(fileoutpaths)
+        df = pd.read_csv(fileinpath, index_col = 0)
+  
+        timeindex = pd.to_datetime(df.index, format = '%m-%d-%Y_%H:%M:%S')
+        timeindex = timeindex.tz_localize(localtz)
+        timeindex = timeindex.tz_convert(None)
+
+        df = df.set_index(timeindex)
+
+        _df_to_csvs(df,times,fileoutpaths)
+
