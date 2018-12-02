@@ -161,7 +161,6 @@ def cut_hene(fileinpaths, times, fileoutpaths_list, **kwargs):
         timeindex = timeindex.tz_localize(localtz)
         timeindex = timeindex.tz_convert(None)
 
-        print(timeindex)
         df = df.set_index(timeindex)
 
         _df_to_csvs(df,times,fileoutpaths)
