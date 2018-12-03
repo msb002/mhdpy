@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from ._tools import _cut_channel, _cut_datetime_channel, _get_indextime
 from nptdms import TdmsFile as TF
-from nptdms import TdmsWriter, RootObject, ChannelObject
+from nptdms import TdmsWriter, RootObject, ChannelObject, GroupObject
 import os
 from numpy import datetime64 as dt64
 
@@ -33,18 +33,20 @@ def cut_log_spectra(fileinpaths, times, fileoutpaths_list, **kwargs):
                     if idx1==idx2:
                         pass
                     else:
-                        for group in tdmsfile.groups()[1:2]:
-                            for channel in tdmsfile.group_channels(group)[idx1:idx2]:
-                                tdms_writer.write_segment([root_object, channel])
-                        for channel in tdmsfile.group_channels('Global'):
-                            if channel.channel == 'Wavelength':
-                                channel_object = channel
+                        for group in tdmsfile.groups():
+                            group_object = GroupObject(group,properties = {})
+                            if group == "Global":
+                                for channel in tdmsfile.group_channels(group):
+                                    if channel.channel == 'Wavelength':
+                                        channel_object = ChannelObject( channel.group, channel.channel, channel.data)
+                                    else:
+                                        channel_object = ChannelObject( channel.group, channel.channel, channel.data[idx1:idx2])
+                                    tdms_writer.write_segment([root_object,group_object,channel_object])
                             else:
-                                channel_object = ChannelObject( channel.group, channel.channel, channel.data[idx1:idx2])
-                            tdms_writer.write_segment([
-                                root_object,
-                                channel_object
-                            ])
+                                for channel_object in tdmsfile.group_channels(group)[idx1:idx2]:
+                                    tdms_writer.write_segment([root_object, group_object, channel_object])
+                        
+                            
             except ValueError as error:
                 print(error)
                 print('removing the file at: \n', fileoutpath)
