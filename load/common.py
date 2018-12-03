@@ -116,3 +116,8 @@ def last_measnum(df, level = 3):
     trim_df = pd.DataFrame(trim_arr, index = trim_index)
     
     return trim_df
+
+def csv2df(filepath):
+    df = pd.read_csv(filepath, index_col = 0)
+    df = df.set_index(pd.to_datetime(df.index))
+    return df
