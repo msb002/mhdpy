@@ -2,6 +2,9 @@
 """
 Various functions for conversions of time objects
 """
+import datetime
+import win32com.client  # Python ActiveX Client
+import os
 
 repopath = 'C:\\Users\\aspit\\Git\\MHDLab\\'
 
@@ -22,3 +25,13 @@ def get_fileinfo(LabVIEW):
     fileinfo = VI.getcontrolvalue('Global File Information')  # Get return value
     return fileinfo  
 
+def get_rawdatafolder(LabVIEW):
+    VI = LabVIEW.getvireference(repopath + 'Global Variables.vi')  # Path to LabVIEW VI
+    datafolder = VI.getcontrolvalue('Data folder')  # Get return value
+    datestring = datetime.date.today().strftime("%Y-%m-%d")
+    datafolder = os.path.join(datafolder,datestring)
+    return datafolder
+
+
+# LabVIEW = win32com.client.Dispatch("Labview.Application")
+# print(get_rawdatafolder(LabVIEW))
