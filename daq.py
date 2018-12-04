@@ -6,7 +6,7 @@ import datetime
 import win32com.client  # Python ActiveX Client
 import os
 
-repopath = 'C:\\Users\\aspit\\Git\\MHDLab\\'
+repopath = 'C:\\Users\\aspitarl\\Git\\MHDLab\\'
 
 def gen_filepath(LabVIEW, devicename, extension = '.tdms',DAQmx = False, Logfile = False):
     VI = LabVIEW.getvireference(repopath + 'Common Subvis\\GenerateFilePaths.vi')  # Path to LabVIEW VI
