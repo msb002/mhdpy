@@ -89,11 +89,13 @@ class Eventlog():
         writeevent(self.Eventlogfile,event) 
 
     def SavingVIsChange(self, VIname,OnOff):
+        if isinstance(VIname,bytes):
+            VIname = VIname.decode("utf-8")
         """Create event for when a VI starts or stops saving"""
         event = {
             "type" : "VISavingChange",
             "event info": {
-                "name" : VIname.decode("utf-8"),
+                "name" : VIname,
                 "newstate" : OnOff
                 }
         }

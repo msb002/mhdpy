@@ -5,7 +5,7 @@ Modules for post processing of raw data.
 Note: This is similar to ETL in database management. 
 """
 
-__all__ = ['logfiles','spe']
+__all__ = ['logfiles','spe', 'ocop']
 
 from mhdpy.post import *
 

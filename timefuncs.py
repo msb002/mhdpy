@@ -17,9 +17,9 @@ def np64_to_utc(np64_dt):
     """converts a np64 datetime into a datetime datetime with utc timezone, converting through a timestamp first."""
     return datetime.datetime.utcfromtimestamp(np64_to_unix(np64_dt)).replace(tzinfo=pytz.utc)
 
-def np64_to_unix(timestamp):
+def np64_to_unix(timestamp, unit = 's'):
     """converts a np64 datetiem to a unix timestamp"""
-    return (timestamp - np.datetime64('1970-01-01T00:00:00Z', dtype = 'M8[s]')) / np.timedelta64(1, 's')
+    return (timestamp - np.datetime64('1970-01-01T00:00:00Z', dtype = 'M8[' + unit + ']')) / np.timedelta64(1, unit)
 
 def datetime_to_unix(timestamp):
     """converts a datetime datetime into a unix timestamp"""
@@ -36,7 +36,6 @@ def nearest_timeind(timearray, pivot):
     The method varies depending on the datatype. datetime.datetime objects require lambda functions to convert an array to timestamps. numpy datetimes can just undergo simple element by element subtraction, which is much quicker. 
     """
     dtype = type(pivot)
-
     if(dtype == datetime.datetime):
         seconds = np.array(list(map(lambda x: abs(x - pivot).total_seconds(),timearray))) 
     elif(dtype == np.datetime64):
