@@ -6,7 +6,7 @@ import re
 import pandas as pd
 import numpy as np
 
-def create_tcdict(filepaths, loadfn, prefixes = None , kwargs = {}):
+def create_tcdict(filepaths, loadfn, prefix_regex = None , kwargs = {}):
     """takes in a list of files and a load function, and creates a dict of a df for each file. If a prefix is passed, that is removed from the filename (typically the instrument name so only the test case is left as the dict key)"""
 
     dfs = {}
@@ -15,10 +15,9 @@ def create_tcdict(filepaths, loadfn, prefixes = None , kwargs = {}):
         filename = os.path.split(filepath)[1]
         testcase = os.path.splitext(filename)[0]
 
-        if prefixes != None:
-            for prefix in prefixes:
-                if prefix in testcase:
-                    testcase = _remove_prefix(testcase,prefix)
+        if prefix_regex != None:
+            m = re.search(prefix_regex,filename)
+            testcase = _remove_prefix(testcase,m[0])
 
         
         df =  loadfn(filepath, **kwargs)
@@ -117,3 +116,8 @@ def last_measnum(df, level = 3):
     trim_df = pd.DataFrame(trim_arr, index = trim_index)
     
     return trim_df
+
+def csv2df(filepath):
+    df = pd.read_csv(filepath, index_col = 0)
+    df = df.set_index(pd.to_datetime(df.index))
+    return df
