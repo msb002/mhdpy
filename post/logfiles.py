@@ -151,7 +151,7 @@ def cut_hene(fileinpaths, times, fileoutpaths_list, **kwargs):
         m = re.search(regex,timeinfo)
         timestr = m.groups()[0] + " " + m.groups()[1]
         dt_0= pd.to_datetime(timestr, dayfirst = True)
-        dt_0 = dt_0 + pd.Timedelta('1 hour')
+        # dt_0 = dt_0 + pd.Timedelta('1 hour')
 
         df = pd.read_csv(fileinpath, skiprows = 35, delimiter = '\t')
 
