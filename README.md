@@ -1,10 +1,11 @@
 # MHD python package
 
 ## Installation
-1. Download the Git repository by typing `git clone https://github.com/MHDLab/mhdpy` in Git bash.
-2. Open an anaconda prompt as an administrator (type anaconda into the windows search bar and right click to open as administrator). 
-3. Navigate the prompt to your repository. Copy the local path to your repository and type `cd <repository path>`. Note you have to right click and say paste or use Shift+Insert in the prompt. 
-4. type `python setup.py install`. 
+1. Make sure you have installed Anaconda.
+2. Download the Git repository by typing `git clone https://github.com/MHDLab/mhdpy` in Git bash.
+3. Open an anaconda prompt as an administrator (type anaconda into the windows search bar and right click to open as administrator). 
+4. Navigate the prompt to your repository. Copy the local path to your repository and type `cd <repository path>`. Note you have to right click and say paste or use Shift+Insert in the prompt. 
+5. type `python setup.py install`. 
 
 ## Alternative install for development
 
