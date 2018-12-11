@@ -90,7 +90,7 @@ def cut_alicat(fileinpaths, times, fileoutpaths_list, **kwargs):
     cut_log_file(fileinpaths, times, fileoutpaths_list, **kwargs)
 
 def cut_motor(fileinpaths, times, fileoutpaths_list, **kwargs):
-    kwargs = {**kwargs, 'TimeChannelName' : "Time", 'TimeGroupName' : 'Global'}
+    kwargs = {**kwargs, 'TimeChannelName' : "Time"}
     cut_log_file(fileinpaths, times, fileoutpaths_list, **kwargs)
 
 
