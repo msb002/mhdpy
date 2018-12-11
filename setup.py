@@ -16,7 +16,7 @@ from setuptools import find_packages, setup, Command
 # Package meta-data.
 NAME = 'mhdpy'
 DESCRIPTION = 'python code for NETLs MHD labs data acquisition and analysis systems'
-URL = 'https://github.com/aspitarl/MHDlab'
+URL = 'https://github.com/MHDlab'
 EMAIL = 'lee.aspitarte@netl.doe.gov'
 AUTHOR = 'Lee Aspitarte and Michael Bowen'
 REQUIRES_PYTHON = '>=3.6.4'
