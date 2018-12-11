@@ -30,7 +30,6 @@ REQUIRED = [
 'nptdms',
 'pytz',
 'pyqt5',
-'pyqt5-tools',
 'tzlocal',
 'pythonnet',
 'easygui'
