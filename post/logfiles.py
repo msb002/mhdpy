@@ -14,6 +14,8 @@ import numpy as np
 import tzlocal
 import pytz
 import pandas as pd
+import re
+
 
 
 # Mid level post processing (processes a specific type of file)
@@ -95,6 +97,8 @@ def cut_motor(fileinpaths, times, fileoutpaths_list, **kwargs):
 def _df_to_csvs(df, times, fileoutpaths):
     """
     Cuts up a dataframe with a date time index and saves to a csv
+
+    df index should be pandas datetime in UTC
     """
     
     for j in range(len(times)):
@@ -107,14 +111,18 @@ def _df_to_csvs(df, times, fileoutpaths):
         if not os.path.exists(direc):
             os.makedirs(direc)
 
-        df = df[time1:time2]
-        df.to_csv(fileoutpath)       
+        df_cut = df[time1:time2]
+        df_cut.to_csv(fileoutpath)       
 
 def cut_jp(fileinpaths, times, fileoutpaths_list, **kwargs):
+    """
+    cuts jp csv.
+    
+    This function just get the data into a format to be used by _df_to_csvs
+    """
     localtz = tzlocal.get_localzone()
     for i, fileinpath in enumerate(fileinpaths):
         fileoutpaths = fileoutpaths_list[i]
-        print(fileoutpaths)
         df = pd.read_csv(fileinpath, index_col = 0)
   
         timeindex = pd.to_datetime(df.index, format = '%m-%d-%Y_%H:%M:%S')
@@ -125,3 +133,35 @@ def cut_jp(fileinpaths, times, fileoutpaths_list, **kwargs):
 
         _df_to_csvs(df,times,fileoutpaths)
 
+
+def cut_hene(fileinpaths, times, fileoutpaths_list, **kwargs):
+    """
+    cuts up text file generated from starlab. 
+    
+    This function just get the data into a format to be used by _df_to_csvs
+    """
+    localtz = tzlocal.get_localzone()
+    for i, fileinpath in enumerate(fileinpaths):
+        fileoutpaths = fileoutpaths_list[i]
+
+        with open(fileinpath) as fp:
+            lines = fp.readlines()
+        timeinfo = lines[34]
+        regex = ";First Pulse Arrived : (.+) at (.+)\n"
+        m = re.search(regex,timeinfo)
+        timestr = m.groups()[0] + " " + m.groups()[1]
+        dt_0= pd.to_datetime(timestr, dayfirst = True)
+        # dt_0 = dt_0 + pd.Timedelta('1 hour')
+
+        df = pd.read_csv(fileinpath, skiprows = 35, delimiter = '\t')
+
+        dts = df[df.columns[0]]
+        timedeltas = [pd.Timedelta(dt, unit = 's') for dt in dts]
+        timelist = [dt_0 + timedelta for timedelta in timedeltas]
+        timeindex = pd.to_datetime(timelist)
+        timeindex = timeindex.tz_localize(localtz)
+        timeindex = timeindex.tz_convert(None)
+
+        df = df.set_index(timeindex)
+
+        _df_to_csvs(df,times,fileoutpaths)
